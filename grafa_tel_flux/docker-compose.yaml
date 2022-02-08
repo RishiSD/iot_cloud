@@ -1,0 +1,43 @@
+version: "3.3"
+
+services:
+
+  influxdb:
+    image: public.ecr.aws/e5g0d7d7/influxdb:latest
+    ports:
+      - 8086:8086
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_ORG=HTW
+      - DOCKER_INFLUXDB_INIT_BUCKET=IOT
+    env_file:
+      - /etc/influxdb/.influxdb.env
+    volumes:
+      - influxdb-storage:/var/lib/influxdb
+
+  telegraf:
+    image: public.ecr.aws/e5g0d7d7/telegraf:latest
+    restart: always
+    environment:
+      - MQTT_HOST=<Public IP of mqtt_broker>
+      - MQTT_PORT=1883
+      - INFLUX_HOST=influxdb
+      - INFLUX_PORT=8086
+    env_file:
+      - /etc/mosquitto/.mosquitto.env
+      - /etc/telegraf/.telegraf.env
+    volumes:
+      - /etc/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+  grafana:
+    image: public.ecr.aws/e5g0d7d7/grafana:legacy
+    environment:
+      - GF_INSTALL_PLUGINS=https://github.com/cloudspout/cloudspout-button-panel/releases/download/7.0.23/cloudspout-button-panel.zip;cloudspout-button-panel
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  influxdb-storage:
+  grafana-storage:

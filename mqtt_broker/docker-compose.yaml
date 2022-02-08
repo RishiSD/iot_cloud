@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+
+  mosquitto:
+    image: public.ecr.aws/e5g0d7d7/eclipse-mosquitto:latest
+    restart: always
+    volumes:
+      - /etc/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - /etc/mosquitto/pwfile:/mosquitto/config/pwfile
+    ports:
+      - 1883:1883
